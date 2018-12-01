@@ -233,7 +233,8 @@
                     if (item == null) {
                         return;
                     }
-                    $('#biz_id').append('<option>' + data[i].name + '</option>');
+                    alert(item)
+                    $('#biz_id').append('<option value=' + item.id + '>' + item.name + '</option>');
                 });
             } else {
                 alert("获取失败")
