@@ -91,8 +91,8 @@
             <div class="form-group clearfix ">
                 <label class="col-sm-2 control-label bk-lh30 pt0">请选择业务：</label>
                 <div class="col-sm-10">
-                    <select name="" id="contractType" class="form-control bk-valign-top" onClick="selectContractType()">
-                        <option value="">--请选择--</option>
+                    <select name="" id="biz_id" class="form-control bk-valign-top">
+
                     </select>
                 </div>
             </div>
@@ -216,30 +216,33 @@
                 </table>
             </div>
         </div>
+        <template id="app_tpl">
+            <option value="#id#">#name#</option>
+        </template>
     </div>
 </div>
 <script>
 
+        $(function(){
+        /*
+        * 查询表单级联数据拉取
+        */
+        $.get('${SITE_URL}api/get_biz_list/', function(data){
+                if(data.result){
+                    var _html = '';
+                    var list = data.data;
+                    var tpl = $('#app_tpl').html();
+                    for (var i=0,len=list.length; i < len; i++){
+                        var item = list[i];
+                        _html += renderTpl(tpl, item)
+                    }
+                    $('#biz_id').html(_html);
 
-
-    function selectContractType(){
-        $.ajax({
-        // url: '${ SITE_URL }api/get_hosts/',
-        url: site_url + 'api/get_hosts/',
-        type: 'GET',
-        data: {},
-        success : function(data) {
-            $.each(data.message, function (i, item) {//data为所有的数据，i表示编号，item表示第i行的数据
-                 if (item == null) {
-                     return;
-                 }
-                 $('#contractType').append('<option value='+data[i].bk_biz_id+'>'+data[i].bk_biz_name+'</option>');
-        });
-
-        }
-    });
-    }
-
+                    var biz_id = $("#biz_id").val();
+                }else{
+                    alert("获取失败")
+                }
+            }, 'json')
 
     $(function () {
 

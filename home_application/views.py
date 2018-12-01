@@ -48,10 +48,24 @@ def test(request):
     return render_json({"result": True, "message": "success", "data": username})
 
 
-def get_hosts(request):
+def get_biz_list(request):
+    """
+    获取所有业务
+    """
+    biz_list = []
     client = get_client_by_request(request)
-    kwargs = {}
-    result = client.cc.search_business(kwargs)
-    if result["result"]:
-        return render_json(result['data']['info'])
-    return render_json({"result": False})
+    kwargs = {
+        'fields': ['bk_biz_id', 'bk_biz_name']
+    }
+    resp = client.cc.search_business(**kwargs)
+
+    if resp.get('result'):
+        data = resp.get('data', {}).get('info', {})
+        for _d in data:
+            biz_list.append({
+                'name': _d.get('bk_biz_name'),
+                'id': _d.get('bk_biz_id'),
+            })
+
+    result = {'result': resp.get('result'), 'data': biz_list}
+    return render_json(result)
