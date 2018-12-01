@@ -69,3 +69,28 @@ def get_biz_list(request):
 
     result = {'result': resp.get('result'), 'data': biz_list}
     return render_json(result)
+
+
+def get_host(request):
+    """
+    获取主机列表
+    """
+    host_list = []
+    biz_id = int(request.POST.get('biz_id'))
+    # ips = request.POST.get('ips')
+    kwargs = {
+        'bk_biz_id': biz_id,
+    }
+    client = get_client_by_request(request)
+    result = client.search_host(**kwargs)
+    if result.get('result'):
+        data = result.get('data', {}).get('info', {})
+        for _d in data:
+            host_list.append({
+                'host_ip': _d.get('host', {}).get('bk_host_innerip'),
+                'os_name': _d.get('host', {}).get('bk_os_name'),
+                'host_name': _d.get('host', {}).get('bk_host_name'),
+                'name': _d.get('host', {}).get('bk_cloud_id')[0].get('bk_inst_name'),
+            })
+    result = {'result': result.get('result'), 'data': host_list}
+    return render_json(result)
