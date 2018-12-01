@@ -54,4 +54,4 @@ def get_hosts(request):
     result = client.cc.search_business(kwargs)
     if result["result"]:
         return render_json(result['data']['info'])
-    return render_json({"result": False,})
+    return render_json({"result": False})
