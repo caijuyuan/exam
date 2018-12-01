@@ -223,38 +223,39 @@
 </div>
 <script>
 
-        $(function(){
+    $(function () {
         /*
-        * 查询表单级联数据拉取
-        */
-        $.get('${SITE_URL}api/get_biz_list/', function(data){
-                if(data.result){
-                    var _html = '';
-                    var list = data.data;
-                    var tpl = $('#app_tpl').html();
-                    for (var i=0,len=list.length; i < len; i++){
-                        var item = list[i];
-                        _html += renderTpl(tpl, item)
-                    }
-                    $('#biz_id').html(_html);
-
-                    var biz_id = $("#biz_id").val();
-                }else{
-                    alert("获取失败")
+         * 查询表单级联数据拉取
+         */
+        $.get('${SITE_URL}api/get_biz_list/', function (data) {
+            if (data.result) {
+                var _html = '';
+                var list = data.data;
+                var tpl = $('#app_tpl').html();
+                for (var i = 0, len = list.length; i < len; i++) {
+                    var item = list[i];
+                    _html += renderTpl(tpl, item)
                 }
-            }, 'json')
+                $('#biz_id').html(_html);
+
+                var biz_id = $("#biz_id").val();
+            } else {
+                alert("获取失败")
+            }
+        }, 'json')
+    })
 
     $(function () {
 
         // 查询主机
         $("#button-search").on('click', function (e) {
             $("#tbody-ip").html("<tr>\n" +
-                "    <td colspan=\"9\" style=\"text-align: center;padding:20px;\">\n" +
-                "  <div class=\"tc bc pt15 pb15 loading-box\">\n" +
-                "    <img alt=\"loadding\" src=\"https://magicbox.bk.tencent.com/static_api/v3/components/loading1/images/loading_2_24x24.gif\"> 数据加载中,请稍候...\n" +
-                "      </div>\n" +
-                "  </td>\n" +
-                "</tr>");
+                    "    <td colspan=\"9\" style=\"text-align: center;padding:20px;\">\n" +
+                    "  <div class=\"tc bc pt15 pb15 loading-box\">\n" +
+                    "    <img alt=\"loadding\" src=\"https://magicbox.bk.tencent.com/static_api/v3/components/loading1/images/loading_2_24x24.gif\"> 数据加载中,请稍候...\n" +
+                    "      </div>\n" +
+                    "  </td>\n" +
+                    "</tr>");
             // TODO
         });
 
