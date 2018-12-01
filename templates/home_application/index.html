@@ -242,7 +242,10 @@
     })
 
     $(function () {
-
+        var data = {
+            'biz': $('#biz_id').val(),
+            'ips': $('#ips').val(),
+        }
         // 查询主机
         $("#button-search").on('click', function (e) {
             $.post('${SITE_URL}api/get_host/',data, function (data) {
