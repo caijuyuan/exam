@@ -90,7 +90,7 @@ def get_host(request):
                 'host_ip': _d.get('host', {}).get('bk_host_innerip'),
                 'os_name': _d.get('host', {}).get('bk_os_name'),
                 'host_name': _d.get('host', {}).get('bk_host_name'),
-                'name': _d.get('host', {}).get('bk_cloud_id')[0].get('bk_inst_name'),
+                'name': _d.get('host', {}).get('bk_cloud_id'),
             })
     result = {'result': result.get('result'), 'data': host_list}
     return render_json(result)
