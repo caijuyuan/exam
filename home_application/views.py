@@ -42,7 +42,7 @@ def test(request):
     kwargs = {}
     # result = client.cc.add_host_to_resource(kwargs)
     result = json.loads(client.cc.get_user(kwargs))
-    return render_json({"result": True, "message": "success", "data": result['data']['bk_username']})
+    return render_json({"result": True, "message": "success", "data": "caijuyuan"})
 
 
 def get_hosts(request):
