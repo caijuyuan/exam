@@ -229,16 +229,12 @@
          */
         $.get('${SITE_URL}api/get_biz_list/', function (data) {
             if (data.result) {
-                var _html = '';
-                var list = data.data;
-                var tpl = $('#app_tpl').html();
-                for (var i = 0, len = list.length; i < len; i++) {
-                    var item = list[i];
-                    _html += renderTpl(tpl, item)
-                }
-                $('#biz_id').html(_html);
-
-                var biz_id = $("#biz_id").val();
+                $.each(data.data, function (i, item) {//data为所有的数据，i表示编号，item表示第i行的数据
+                    if (item == null) {
+                        return;
+                    }
+                    $('#biz_id').append('<option>' + data[i].name + '</option>');
+                });
             } else {
                 alert("获取失败")
             }
