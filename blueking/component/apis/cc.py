@@ -568,3 +568,8 @@ class CollectionsCC(object):
             path='/api/c/compapi{bk_api_ver}/cc/update_set_service_status/',
             description=u'修改集群服务状态'
         )
+        self.get_user = ComponentAPI(
+            client=self.client, method='GET',
+            path='/api/c/compapi{bk_api_ver}/bk_login/get_user/',
+            description=u'获取用户信息'
+        )

@@ -33,13 +33,13 @@
     <script src="http://magicbox.bk.tencent.com/static_api/analysis.js"></script>
 
     <!-- 放到蓝鲸开发框架后，请引用csrftoken.js解决jquery下POST请求403问题，如果使用的是mako模板，可以直接去掉下面的注释 -->
-    <!--script src="${STATIC_URL}js/csrftoken.js?v=${STATIC_VERSION}" type="text/javascript"></script-->
+    <script src="${STATIC_URL}js/csrftoken.js?v=${STATIC_VERSION}" type="text/javascript"></script>
     <!-- 这个是全局配置，如果需要在js中使用app_id和site_url,则这个javascript片段一定要保留 -->
-    <!--script type="text/javascript">
+    <script type="text/javascript">
         var app_id = "${APP_ID}";
         var site_url = "${SITE_URL}";	  // app的url前缀,在ajax调用的时候，应该加上该前缀
         var static_url = "${STATIC_URL}"; // 静态资源前缀
-    </script-->
+    </script>
 
     <!-- 以下两个插件用于在IE8以及以下版本浏览器支持HTML5元素和媒体查询，如果不需要用可以移除 -->
     <!--[if lt IE 9]><script src="https://magicbox.bk.tencent.com/static_api/v3/assets/js/html5shiv.min.js"></script><script src="https://magicbox.bk.tencent.com/static_api/v3/assets/js/respond.min.js"></script>
@@ -53,7 +53,7 @@
     </style>
 </head>
 
-<body class="bg-white" data-bg-color="bg-white">
+<body class="bg-white" data-bg-color="bg-white" onload='init()'>
 <div class="king-page-box">
     <div class="king-layout1-header">
         <nav role="navigation" class="navbar navbar-default king-horizontal-nav2    f14 ">
@@ -91,11 +91,8 @@
             <div class="form-group clearfix ">
                 <label class="col-sm-2 control-label bk-lh30 pt0">请选择业务：</label>
                 <div class="col-sm-10">
-                    <select name="" id="" class="form-control bk-valign-top">
-                        <option value="选择项1">选择项1</option>
-                        <option value="选择项2">选择项2</option>
-                        <option value="选择项3">选择项3</option>
-                        <option value="选择项4">选择项4</option>
+                    <select name="" id="contractType" class="form-control bk-valign-top" onClick="selectContractType()">
+                        <option value="">--请选择--</option>
                     </select>
                 </div>
             </div>
@@ -222,6 +219,29 @@
     </div>
 </div>
 <script>
+
+
+
+    function selectContractType(){
+        $.ajax({
+        // url: '${ SITE_URL }api/get_hosts/',
+        url: site_url + 'api/get_hosts/',
+        type: 'GET',
+        data: {},
+        success : function(data) {
+            alert("success")
+            $.each(data, function (i, item) {//data为所有的数据，i表示编号，item表示第i行的数据
+                 if (item == null) {
+                     return;
+                 }
+                 $('#contractType').append('<option>'+data[i].name+'</option>');
+        });
+
+        }
+    });
+    }
+
+
     $(function () {
 
         // 查询主机
