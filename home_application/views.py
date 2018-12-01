@@ -51,5 +51,7 @@ def test(request):
 def get_hosts(request):
     client = get_client_by_request(request)
     kwargs = {}
-    result = json.loads(client.cc.get_user(kwargs))
-    return result['data']['info']
+    result = client.cc.search_business(kwargs)
+    if result["result"]:
+        return result['data']['info']
+    return {}
