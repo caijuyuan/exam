@@ -1,0 +1,270 @@
+<%inherit file="/base.html"/>
+
+<%block name="content">
+    <div class="home-page" id="app">
+        <div class="wrapper">
+            <i-form ref="model" :model="model" label-width="100">
+                    <Form-item label="选择业务">
+                            <i-select v-model="bk_biz_id" style="width:400px">
+                                <i-option v-for="item in bizList" :value="item.bk_biz_id">{{ item.bk_biz_name }}</i-option>
+                            </i-select>
+                    </Form-item>
+                    <Form-item label="选择主机IP">
+                           <i-input v-model="ips" type="textarea" :rows="2" placeholder="请输入ip用逗号分隔"></i-input>
+                    </Form-item>
+                    <Form-item>
+                           <i-button  @click="search_host">查询</i-button>
+                    </Form-item>
+
+            </i-form>
+
+        </div>
+        <div>
+            <i-table :columns="columns1" :data="hostList"></i-table>
+        </div>
+    </div>
+</%block>
+
+<script>
+    Vue.prototype.$http=axios;
+    Vue.use(iview);
+    new Vue({
+        el: '#app',
+        data () {
+            return {
+                ips:'',
+                bk_biz_name:'',
+                bk_biz_id1:'',
+                ip2:'',
+                showHost: false,
+                ip: '',
+                columns1: [
+                    {
+                        title: '内网IP',
+                        key: 'bk_host_innerip'
+                    },
+                    {
+                        title: '操作系统类型',
+                        key: 'bk_os_name'
+                    },
+                    {
+                        title: '主机名称',
+                        key: 'bk_host_name'
+                    },
+                    {
+                        title: '云区域',
+                        key: 'bk_cloud_name'
+                    },
+                    {
+                        title: 'MEN(%)',
+                        key: 'memory_load'
+                    },
+                        {
+                        title: 'DISK(%)',
+                        key: 'disk_load'
+                    },
+                        {
+                        title: 'CPU(%)',
+                        key: 'cpu_load'
+                    },
+                   {
+                        title: '操作',
+                        key: 'action',
+                        render: (h, params) => {
+                          return h('div',[
+                                  h('Button',
+                                    {
+                                      props: {type: 'primary', size: 'small'},
+                                      on: {
+                                        click: () => {
+                                         this.search_performan(params.row)
+                                        }
+                                      }
+                                    },
+                                    '查询'
+                                  ),
+                                  h('Button',
+                                    {
+                                      props: {type: params.row.is_moniter?'error':'success', size: 'small'},
+                                      on: {
+                                        click: () => {
+                                         this.add_host(params.row)
+                                        }
+                                      }
+                                    },
+                                   params.row.is_moniter?'取消监控':'添加监控'
+                                  ),
+                                  ]
+                          )
+                        }
+                    }
+                ],
+                columns2: [
+                    {
+                        title: '文件名',
+                        key: 'name'
+                    },
+                    {
+                        title: '总大小',
+                        key: 'total'
+                    },
+                    {
+                        title: '已用大小',
+                        key: 'yiyong_size'
+                    },
+                    {
+                        title: '可用大小',
+                        key: 'keyong_size'
+                    },
+                    {
+                        title: '使用率',
+                        key: 'rate'
+                    },
+                    {
+                        title: '挂载点',
+                        key: 'dir'
+                    },
+                   {
+                        title: '操作',
+                        key: 'action',
+                    }
+                ],
+                diskList: [],
+                bk_biz_id: '',
+                bizList: [],
+                model: '',
+                bk_set_id: '',
+                setList: [],
+                hostList: [],
+                showLog: false,
+                ipList :[],
+                ip1 :'',
+                ip_list: []
+            }
+        },
+        methods: {
+            <!-- 查询业务 -->
+            search_business(){
+                this.$http.get(site_url+'search_business1/').then(res=>{
+                    if (res.data.result){
+                        this.bizList = res.data.data.info;
+                         }
+                })
+            },
+            <!-- 查询集群 -->
+            search_set(){
+                this.$http.get(site_url+'search_set/?biz_id='+this.bk_biz_id).then(res=>{
+                    if (res.data.result){
+                        this.setList = res.data.data.info;
+                        console.log(res.data.data.info)
+                         }
+                })
+            },
+            <!-- 查询主机 -->
+            search_host(){
+                this.$http.get(site_url+'search_host1/?bk_biz_id='+this.bk_biz_id+'&ips='+this.ips).then(res=>{
+                    tempList = []
+                    if (res.data.result){
+                        var tempList = []
+                        var data = res.data.data.info;
+                        for (var i=0; i<data.length; i++){
+                                tempList.push({
+                                'bk_host_innerip':data[i].host.bk_host_innerip,
+                                'bk_os_name':data[i].host.bk_os_name,
+                                'bk_host_name':data[i].host.bk_host_name,
+                                'bk_cloud_name':data[i].host.bk_cloud_id[0].bk_inst_name,
+                                'bk_cloud_id':data[i].host.bk_cloud_id[0].id,
+                                'is_moniter':data[i].host.is_moniter,
+                                'memory_load': '--',
+                                'disk_load': '--',
+                                'cpu_load': '--',
+                            })
+                        }
+                        this.hostList = tempList
+                    }
+                })
+            },
+            <!-- 添加监控主机 -->
+            add_host(row){
+                var falg =  confirm(row.is_moniter?'是否从周期检查任务列表中移除':'是否加入周期检查任务');
+                if(falg==true) {
+                    this.$http.post(site_url + 'insert_host/', {'row': row, 'bk_biz_id': this.bk_biz_id}).then(res=> {
+                        row.is_moniter = !row.is_moniter
+                        alert('success')
+                    })
+                }
+            },
+            <!-- 查询主机性能 -->
+            search_performan(row){
+                var falg = confirm('是否查询系统资源使用情况');
+                if(falg==true) {
+                    this.$http.get(site_url + 'search_performan/?bk_biz_id=' + this.bk_biz_id + '&ip=' + row.bk_host_innerip + '&bk_cloud_id=' + row.bk_cloud_id).then(res=> {
+                        console.log(res.data)
+                        if (res.data.message[0].result) {
+                            row.memory_load = res.data.message[0].log_info.memory_load
+                            row.disk_load = res.data.message[0].log_info.disk_load
+                            row.cpu_load = res.data.message[0].log_info.cpu_load
+                        }
+                        else {
+                            alert(' Can not find Agent by ip' + row.bk_host_innerip)
+                        }
+                    })
+                }
+                 },
+
+
+            <!-- 查询主机列表 -->
+            search(){
+                this.$http.get(site_url+'search_db_host1/?ip='+this.ip).then(res=>{
+                    if (res.data.result){
+                        this.hostList = res.data.message
+                         }
+                })
+            },
+            save(){
+                this.$http.get(site_url+'save_host1/?bk_biz_id='+this.bk_biz_id+'&ip='+this.ip1).then(res=>{
+                    if (res.data.result){
+                        alert('添加成功')
+                        this.showLog = false
+                        this.search()
+                         }
+                    else{
+                        alert(res.data.message)
+                    }
+                })
+            },
+            delete_host(row){
+                this.$http.get(site_url+'delete_host1/?bk_biz_id='+row.bk_biz_id+'&ip='+row.ip).then(res=>{
+                    if (res.data.result){
+                        alert('删除成功')
+                        this.search()
+                         }
+                })
+            },
+            <!-- 修改主机 -->
+            save_beizhu(){
+            },
+            update_host(row){
+            },
+            cancel(){
+                this.showLog = false
+                this.showHost = false
+                this.search()
+            },
+        },
+        created () {
+            this.search_business()
+        },
+        watch: {
+            bk_biz_id(){
+                this.search_set()
+            },
+            bk_set_id(){
+                this.search_host()
+            },
+        },
+        mounted(){}
+    })
+</script>
+
+

@@ -13,6 +13,11 @@ class CollectionsJOB(object):
             path='/api/c/compapi{bk_api_ver}/job/execute_job/',
             description=u'启动作业'
         )
+        self.fast_execute_sql = ComponentAPI(
+            client=self.client, method='POST',
+            path='/api/c/compapi{bk_api_ver}/job/fast_execute_sql/',
+            description=u'快速执行SQL脚本'
+        )
         self.get_cron_list = ComponentAPI(
             client=self.client, method='GET',
             path='/api/c/compapi{bk_api_ver}/job/get_cron_list/',

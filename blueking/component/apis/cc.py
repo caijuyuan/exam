@@ -143,6 +143,11 @@ class CollectionsCC(object):
             path='/api/c/compapi{bk_api_ver}/cc/get_host_base_info/',
             description=u'获取主机详情'
         )
+        self.get_operation_log = ComponentAPI(
+            client=self.client, method='POST',
+            path='/api/c/compapi{bk_api_ver}/cc/get_operation_log/',
+            description=u'获取操作日志'
+        )
         self.get_role_privilege = ComponentAPI(
             client=self.client, method='GET',
             path='/api/c/compapi{bk_api_ver}/cc/get_role_privilege/',
@@ -493,6 +498,11 @@ class CollectionsCC(object):
             path='/api/c/compapi{bk_api_ver}/cc/get_plat_id/',
             description=u'查询子网列表'
         )
+        self.get_proc_config_instance_status = ComponentAPI(
+            client=self.client, method='GET',
+            path='/api/c/compapi{bk_api_ver}/cc/get_proc_config_instance_status/',
+            description=u'获取刷新进程实例状态'
+        )
         self.get_process_port_by_app_id = ComponentAPI(
             client=self.client, method='GET',
             path='/api/c/compapi{bk_api_ver}/cc/get_process_port_by_app_id/',
@@ -558,6 +568,11 @@ class CollectionsCC(object):
             path='/api/c/compapi{bk_api_ver}/cc/update_module_property/',
             description=u'修改模块属性'
         )
+        self.update_proc_config_instance = ComponentAPI(
+            client=self.client, method='POST',
+            path='/api/c/compapi{bk_api_ver}/cc/update_proc_config_instance/',
+            description=u'刷新进程配置实例'
+        )
         self.update_set_property = ComponentAPI(
             client=self.client, method='POST',
             path='/api/c/compapi{bk_api_ver}/cc/update_set_property/',
@@ -567,9 +582,4 @@ class CollectionsCC(object):
             client=self.client, method='POST',
             path='/api/c/compapi{bk_api_ver}/cc/update_set_service_status/',
             description=u'修改集群服务状态'
-        )
-        self.get_user = ComponentAPI(
-            client=self.client, method='GET',
-            path='/api/c/compapi{bk_api_ver}/bk_login/get_user/',
-            description=u'获取用户信息'
         )

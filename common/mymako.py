@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-Tencent is pleased to support the open source community by making 蓝鲸智云(BlueKing) available.
-Copyright (C) 2017 THL A29 Limited, a Tencent company. All rights reserved.
-Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License.
-You may obtain a copy of the License at http://opensource.org/licenses/MIT
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
-an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and limitations under the License.
 
+"""
 mako模板的render方法等
 """
-
+import decimal
 import json
+
+import datetime
 from django.conf import settings
 from django.http import HttpResponse
 from django.template.context import Context
@@ -107,6 +102,24 @@ def render_mako_tostring_context(request, template_name, dictionary={}):
     return render_mako_tostring(template_name, dictionary=dictionary, context_instance=context_instance)
 
 
+"""
+时间格式化类
+"""
+
+
+class CJsonEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            return obj.strftime('%Y-%m-%d %H:%M:%S')
+        elif isinstance(obj, datetime.date):
+            return obj.strftime('%Y-%m-%d')
+        elif isinstance(obj, datetime.time):
+            return obj.strftime('%H:%M:%S')
+        elif isinstance(obj, decimal.Decimal):
+            return float(obj)
+        else:
+            return json.JSONEncoder.default(self, obj)
+
 def render_json(dictionary={}):
     """
     return the json string for response
@@ -122,7 +135,7 @@ def render_json(dictionary={}):
             'result': True,
             'message': dictionary,
         }
-    return HttpResponse(json.dumps(dictionary), content_type='application/json')
+    return HttpResponse(json.dumps(dictionary, cls=CJsonEncoder), content_type='application/json')
 
 
 def get_context_processors_content(request):
