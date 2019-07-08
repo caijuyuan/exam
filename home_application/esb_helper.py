@@ -6,11 +6,25 @@ import requests
 import json
 import sys
 
+import xlrd
+
 from conf.default import APP_ID, APP_TOKEN, BK_PAAS_HOST
 from common.log import logger
 
 reload(sys)
 sys.setdefaultencoding("utf8")
+
+
+# 解析上传的excle文件
+def upload_student(request):
+    exam_id = request.POST.get('id')
+    filename = '{0}.xls'.format(str(int(time.time())))
+    file = open(filename, 'wb')
+    file.write(request.FILES.get("exam_info").read())
+    file.close()
+    data = xlrd.open_workbook(filename)
+    sheet = data.sheets()[0]
+    nrows = sheet.nrows
 
 
 def run_fast_execute_script(biz_id, script_content, ip_list, username = "admin"):
@@ -21,7 +35,7 @@ def run_fast_execute_script(biz_id, script_content, ip_list, username = "admin")
     :param ip_list: [{"ip":"10.0.0.10","bk_cloud_id":0}]
     :return: {"result": True, "data": "job_instance_id"}
     """
-    
+
     url = BK_PAAS_HOST + '/api/c/compapi/v2/job/fast_execute_script/'
     execute_account = "root"
     param_content = ""
@@ -48,7 +62,7 @@ def run_fast_execute_script(biz_id, script_content, ip_list, username = "admin")
         return {"result": False, "data": result["message"]}
 
 
-def run_execute_job(biz_id, job_id, global_vars_id, ip_list, username="admin"):
+def run_execute_job(biz_id, job_id, ip_list, username="admin"):
     """
     快速执行脚本
     :param job_id: 作业模板id
@@ -67,8 +81,14 @@ def run_execute_job(biz_id, job_id, global_vars_id, ip_list, username="admin"):
         "bk_job_id": int(job_id),
         "global_vars": [
             {
+                "step_ids": [
+                    4
+                ],
                 "ip_list": ip_list,
-                "id": int(global_vars_id),
+                "name": "id-201921816444771",
+                "type": 2,
+                "id": 2,
+                "description": ""
             }
         ],
     }
@@ -76,7 +96,6 @@ def run_execute_job(biz_id, job_id, global_vars_id, ip_list, username="admin"):
     result = json.loads(response.content)
 
     return result
-
 
 def get_job_instance_log(biz_id, job_instance_id, username="admin", count=0):
     """
@@ -118,9 +137,29 @@ def get_job_instance_log(biz_id, job_instance_id, username="admin", count=0):
             log_content += [{"ip": u["ip"], "log_content": u["log_content"], "bk_cloud_id": u["bk_cloud_id"], "is_success": i['ip_status'] == 9} for u in
                             i["ip_logs"]]
         return log_content
-    time.sleep(2)
-    return get_job_instance_log(biz_id, job_instance_id, username=username)
+    else:
+        count += 1
+        if count > 5:
+            return []
+        time.sleep(2)
+        return get_job_instance_log(biz_id, job_instance_id, username, count)
+    
+    return []
 
+def run_script_and_get_log_content(biz_id, script, ip_list, username):
+    """
+    执行脚本，并返回执行结果
+    """
+
+    f_result = run_fast_execute_script(biz_id, script, ip_list, username)
+
+    if f_result["result"]:
+        job_instance_id = f_result["data"]
+        result = get_job_instance_log(biz_id, job_instance_id, username)
+        return result[0]["log_content"]
+
+    else:
+        return ""
 
 def cc_search_host(biz_id, ip_list, username = "admin"):
     '''
@@ -163,7 +202,7 @@ def cc_search_host(biz_id, ip_list, username = "admin"):
     ],
     "page": {
         "start": 0,
-        "limit": 50,
+        "limit": 10,
         "sort": "bk_host_id"
     },
     "pattern": ""
@@ -193,8 +232,7 @@ def cc_search_set(biz_id, username='admin'):
         "bk_username": username,
         "bk_biz_id": int(biz_id),
         "fields": [
-            "bk_set_name",
-            "bk_set_id",
+            "bk_set_name"
         ],
         "condition": search,
         "page": {
@@ -255,6 +293,7 @@ def cc_get_job_detail(biz_id, job_id, username='admin'):
         "bk_username": username,
         "bk_biz_id": biz_id,
         "bk_job_id": job_id
+
     }
     # endregion
 

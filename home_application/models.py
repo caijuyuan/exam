@@ -2,31 +2,31 @@
 from django.db import models
 
 
-class Host(models.Model):
+class ExamModel(models.Model):
     id = models.AutoField(u'主键', primary_key=True)
-    bk_biz_id = models.IntegerField(u'业务ID')
-    bk_biz_name = models.CharField(u'业务名称', max_length=128)
-    bk_clound_id = models.IntegerField(u'云区域id')
-    bk_clound_name = models.CharField(u'云区域id', max_length=128)
-    os_name = models.CharField(u'系统名', max_length=128)
-    host_name = models.CharField(u'主机名称', max_length=128 ,null=True)
-    ip = models.CharField(u'ip', max_length=64)
-    beizhu = models.CharField(u'备注', max_length=64, null=True)
+    bk_biz_id = models.IntegerField(u'业务ID', null=True)
+    bk_biz_name = models.CharField(u'业务ID', max_length=128, null=True)
+    exam_name = models.CharField(u'模板', max_length=128, null=True)
+    exam_type = models.CharField(u'ips', max_length=128, null=True)
+    exam_addr = models.CharField(u'类型', max_length=128, null=True)
+    exam_date = models.DateTimeField(u'开始', max_length=128, null=True)
+    exam_charge = models.CharField(u'类型', max_length=128, null=True)
+    exam_charge_phone = models.CharField(u'任务名称', max_length=128, null=True)
+    exam_status = models.CharField(u'创建人', max_length=128, null=True)
+    exam_topic = models.BinaryField(u'考试题目', null=True)
+    exam_file_name = models.CharField(u'考试文件名', null=True, max_length=128)
 
+    def __setitem__(self, key, value):
+        self.key = value
 
-class Loadavg(models.Model):
-    id = models.AutoField(u'主键', primary_key=True)
-    ip = models.CharField(u'ip', max_length=64)
-    bk_biz_id = models.IntegerField(u'业务ID')
-    load_avg = models.FloatField(u'负载')
-    date = models.DateTimeField(null=True)
+    def __getitem__(self, item):
+        return item
 
+    def save_item(self, testobj):
+        # 存储对象通用方法，处理外键或者when_created都需要先手动赋值对象或者原值后后再存储进去
+        obj = self
+        for attr in [f.name for f in self._meta.fields]:
+            if (attr in testobj):
+                setattr(obj, attr, testobj[attr])
+        obj.save()
 
-class Load(models.Model):
-    id = models.AutoField(u'主键', primary_key=True)
-    ip = models.CharField(u'ip', max_length=64)
-    bk_biz_id = models.IntegerField(u'业务ID')
-    cpu_load = models.FloatField(u'cpu_load')
-    memory_load = models.FloatField(u'memory_load')
-    disk_load = models.FloatField(u'disk_load')
-    date = models.DateTimeField(u'时间')

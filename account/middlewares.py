@@ -6,7 +6,6 @@ from django.middleware.csrf import get_token as get_csrf_token
 from django.conf import settings
 
 from account.accounts import Account
-from conf.default import RUN_MODE
 
 
 class LoginMiddleware(object):
@@ -14,10 +13,6 @@ class LoginMiddleware(object):
 
     def process_view(self, request, view, args, kwargs):
         """process_view."""
-        if RUN_MODE == "DEVELOP":
-            request.user.username = "admin"
-            request.user.is_superuser = True
-            return None
         if getattr(view, 'login_exempt', False):
             return None
 

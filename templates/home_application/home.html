@@ -1,96 +1,25 @@
 <%inherit file="/base.html"/>
 
 <%block name="content">
-
-    <div class="home-page" id="app">
-        <div class="wrapper">
-                <div class="charts-wrapper">
-                    <ve-line :data="lineData" width="800px"></ve-line>
-                </div>
-                <div class="charts-wrapper">
-                    <ve-histogram :data="chartData" width="800px" :extend="extend" :settings="setting"></ve-histogram>
-                </div>
-                <div class="charts-wrapper">
-                    <ve-pie :data="chartData" width="800px"></ve-pie>
-                </div>
-            <div class="charts-wrapper">
-                <ve-histogram :data="lineData" :settings="chartSettings"  width="800px"></ve-histogram>
-            </div>
-
-            <!-- 遍历，动态生成多个图表 -->
-            <div class="charts-wrapper" v-for="item in list">
-                    <ve-pie :data="item" width="800px"></ve-pie>
-                </div>
-        </div>
+    <div class="home-page">
+    	<div class="page-arrow">
+			<div class="container">
+				<!-- 蓝鲸智云开发框架说明  Start -->
+				<div class="tc title-word">
+					<p>欢迎使用蓝鲸智云集成平台</p>
+				</div>
+				<div class="tc title-word-second">
+					<p>蓝鲸智云开发框架<small class="pl10">助力你的自动化</small></p>
+				</div>
+				<hr class="cutting-line">
+				<div class="tc frame-explain-text">
+					<p>您现在打开的应用是由蓝鲸智云示例代码生成的，该示例代码称为“APP开发框架”。</p>
+					<p>蓝鲸智云集成平台（PaaS）提供了完善的前后台开发框架、调度引擎、公共组件等模块，帮助业务的产品和技术人员快速构建低成本、免运维的支撑工具和运营系统。</p>
+					<p>若想体验快速开发应用的功能，请前往<a class="developer-center" href="${BK_PAAS_HOST}" target="_blank">“开发者中心”</a>。</p>
+				</div>
+				<!-- 蓝鲸智云开发框架说明  End -->
+			</div>
+		</div>
     </div>
 </%block>
-<script>
-     new Vue({
-      el: '#app',
-      data: function () {
-        return {
-            id:"${id}",
-          chartData: {
-            columns: ['time', 'cpu'],
-            rows: []
-          },
-            chartSettings: {
-                showLine: ['disk']
-            },
-            lineData: {
-              columns: ['time', 'cpu', 'men', 'disk'],
-              rows: []
-            },
-            extend:{
-                <!--设置柱状图每根柱子的宽度-->
-              barMaxWidth: 30
-            },
-             setting:{
-                <!--设置鼠标经过时提示信息-->
-                labelMap:{
-                  'name': '销售额'
-                }
-            },
-            list:[]
-        }
-      },
-         methods:{
-           getJson(){
-               axios.get(site_url+ 'api/getJson').then(res=>{
-                   this.chartData.rows = res.data.data
-                   this.lineData.rows = res.data.data
-               })
-           },
-             getList(){
-               axios.get(site_url+ 'api/getJson').then(res=>{
-                   this.list.push({
-                       columns: ['time', 'cpu'],
-                       rows: res.data.data
-                   })
-                   this.list.push({
-                       columns: ['time', 'disk'],
-                       rows: res.data.data
-                   })
-
-               })
-           }
-         },
-         created(){
-           this.getJson()
-             this.getList()
-           /*setInterval(this.getJson,1000)*/
-         }
-    })
-</script>
-<style>
-    .charts-wrapper{
-
-    }
-    .charts-wrapper{
-        width: 50%;
-        float:left;
-        border:1px solid #ddd;
-    }
-</style>
-
 

@@ -3,10 +3,8 @@
 """
 mako模板的render方法等
 """
-import decimal
-import json
 
-import datetime
+import json
 from django.conf import settings
 from django.http import HttpResponse
 from django.template.context import Context
@@ -102,11 +100,6 @@ def render_mako_tostring_context(request, template_name, dictionary={}):
     return render_mako_tostring(template_name, dictionary=dictionary, context_instance=context_instance)
 
 
-"""
-时间格式化类
-"""
-
-
 class CJsonEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime.datetime):
@@ -119,6 +112,7 @@ class CJsonEncoder(json.JSONEncoder):
             return float(obj)
         else:
             return json.JSONEncoder.default(self, obj)
+
 
 def render_json(dictionary={}):
     """

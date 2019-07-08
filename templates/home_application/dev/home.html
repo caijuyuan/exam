@@ -1,0 +1,395 @@
+<%inherit file="/base.html"/>
+
+<%block name="content">
+
+    <div class="home-page" id="app">
+        <div class="wrapper">
+            <i-form ref="model" :model="model" label-width="100">
+                    <Form-item label="考试名称">
+                        <i-input v-model="exam_name" placeholder="请输入..." style="width: 300px"></i-input>
+                    </Form-item>
+                    <Form-item label="考试地点">
+                        <i-input v-model="exam_addr" placeholder="请输入..." style="width: 300px"></i-input>
+                    </Form-item>
+                    <Form-item label="考试类型">
+                        <i-select v-model="exam_type" style="width:300px">
+                            <i-option v-for="item in exam_type_list" :value="item">{{ item}}</i-option>
+                        </i-select>
+                    </Form-item>
+                    <Form-item label="考试负责人">
+                        <i-select v-model="exam_charge" style="width:300px">
+                            <i-option v-for="item in exam_charge_list" :value="item">{{ item}}</i-option>
+                        </i-select>
+                    </Form-item>
+                    <Form-item>
+                           <i-button  @click="search_exam">查询</i-button>
+                           <i-button  @click="reset">清空</i-button>
+                    </Form-item>
+                    <Form-item>
+                           <i-button  @click="open_create_exam_window">创建考试</i-button>
+                    </Form-item>
+            </i-form>
+            <div>
+                <i-table :columns="columns1" :data="exam_list"></i-table>
+                <Page
+                    :total="dataCount"
+                    :page-size="pageSize"
+                    :current="pageIndex"
+                    show-total
+                    @on-change="handlePage"
+                  ></Page>
+            </div>
+            <Modal
+            v-model="create_exam_windows"
+            title="创建考试">
+            <i-form ref="model" :model="model" label-width="100">
+                    <Form-item label="关联业务">
+                        <i-select v-model="bk_biz_id" style="width:300px">
+                            <i-option v-for="item in biz_list" :value="item.bk_biz_id">{{ item.bk_biz_name }}</i-option>
+                        </i-select>
+                    </Form-item>
+                    <Form-item label="考试名称">
+                        <i-input v-model="exam_name" placeholder="请输入..." style="width: 300px"></i-input>
+                    </Form-item>
+                    <Form-item label="考试类型">
+                        <i-select v-model="exam_type" style="width:300px">
+                            <i-option v-for="item in exam_type_list" :value="item">{{ item}}</i-option>
+                        </i-select>
+                    </Form-item>
+                     <Form-item label="考试负责人">
+                        <i-select v-model="exam_charge" style="width:300px">
+                            <i-option v-for="item in exam_charge_list" :value="item">{{ item}}</i-option>
+                        </i-select>
+                    </Form-item>
+                    <Form-item label="考试日期">
+                            <Date-picker v-model="exam_date" type="date" placeholder="选择日期" style="width: 200px"></Date-picker>
+                    </Form-item>
+                    <Form-item label="考试地点">
+                        <i-input v-model="exam_addr" placeholder="请输入..." style="width: 300px"></i-input>
+                    </Form-item>
+                    <Form-item label="考试负责人联系方式">
+                        <i-input v-model="exam_charge_phone" placeholder="请输入..." style="width: 300px"></i-input>
+                    </Form-item>
+                    <Form-item label="上传考试题目">
+                            <Upload
+                            :before-upload="handleUpload"
+                            action="//jsonplaceholder.typicode.com/posts/">
+                            <i-button icon="ios-cloud-upload-outline">点击上传文件</i-button>
+                        </Upload>
+                        <div v-if="file != null">已选择文件: {{ file.name }}</div>
+
+                    </Form-item>
+            </i-form>
+            <div slot="footer">
+                   <i-button  @click="save_exam">创建</i-button>
+                   <i-button  @click="cancel">取消</i-button>
+            </div>
+        </Modal>
+
+
+            <Modal
+            v-model="exam_info_windows"
+            title="考试详情"
+            width="800">
+                <Row>
+                    <i-col span="8">
+                        <i-form ref="model" :model="model" label-width="100">
+                    <Form-item label="关联业务">
+                        {{ bk_biz_name }}
+                    </Form-item>
+                    <Form-item label="考试名称">
+                        {{ exam_name }}
+                    </Form-item>
+                    <Form-item label="考试类型">
+                        {{ exam_type }}
+                    </Form-item>
+                     <Form-item label="考试负责人">
+                         {{ exam_charge }}
+                    </Form-item>
+                    <Form-item label="考试日期">
+                        {{ date }}
+                    </Form-item>
+                    <Form-item label="考试负责人联系方式">
+                        {{ exam_charge_phone }}
+                    </Form-item>
+                    <Form-item label="上传考试题目">
+                           <i-button  @click="download">考试题目</i-button>
+                    </Form-item>
+            </i-form>
+                    </i-col>
+                    <i-col span="8">
+                       <div class="charts-wrapper">
+                            <ve-histogram :data="chartData" width="400px"></ve-histogram>
+                        </div>
+                    </i-col>
+                </Row>
+                <div>
+                    <i-table :columns="columns2" :data="exam_info_list"></i-table>
+                </div>
+                <div>
+                    <input id="demo" type="file" class="file">
+                    <i-button  @click="upload_student">导入考生</i-button>
+                </div>
+        </Modal>
+        </div>
+    </div>
+</%block>
+<script>
+    Vue.prototype.$http=axios;
+    Vue.use(iview);
+     new Vue({
+      el: '#app',
+      data: function () {
+        return {
+            file:null,
+            pageIndex: 1,
+            pageSize: 10,
+            dataCount: 12,
+            id:'',
+            chartData:{},
+            exam_date:'',
+            date:'',
+            bk_biz_id:'',
+            biz_list:[],
+            exam_name:'',
+            exam_addr:'',
+            exam_charge: '',
+            create_exam_windows: false,
+            exam_info_windows: false,
+            exam_type : '',
+            bk_biz_name: '',
+            model:'',
+            columns1:[
+                    {
+                        title: '业务名称',
+                        key: 'bk_biz_name'
+                    },
+                    {
+                        title: '考试名称',
+                        key: 'exam_name'
+                    },
+                    {
+                        title: '考试类型',
+                        key: 'exam_type'
+                    },
+                    {
+                        title: '考试时间',
+                        key: 'exam_date'
+                    },
+                    {
+                        title: '考试状态',
+                        key: 'exam_status'
+                    },
+                    {
+                        title: '考试地点',
+                        key: 'exam_addr'
+                    },
+                   {
+                        title: '操作',
+                        key: 'action',
+                        render: (h, params) => {
+                          return h('div',[
+                                  h('Button',
+                                    {
+                                      props: {type:'info', size: 'small'},
+                                      on: {
+                                        click: () => {
+                                         this.exam_info(params.row)
+                                        }
+                                      }
+                                    },
+                                   '详情'
+                                  ),h('Button',
+                                    {
+                                      props: {type:'error', size: 'small'},
+                                      on: {
+                                        click: () => {
+                                         this.delete_exam(params.row)
+                                        }
+                                      }
+                                    },
+                                   '删除'
+                                  ),
+                                  ]
+                          )
+                        }
+                    }
+                ],
+            columns2:[
+                    {
+                        title: '考生',
+                        key: 'student_name'
+                    },
+                    {
+                        title: '部门',
+                        key: 'dopt'
+                    },
+                    {
+                        title: '得分',
+                        key: 'score'
+                    },
+                    {
+                        title: '结果',
+                        key: 'result'
+                    },
+                    {
+                        title: '备注',
+                        key: 'remark'
+                    },
+                ],
+            exam_type_list:['运维开发工程师','运维自动化工程师'],
+            exam_charge_list:[],
+            exam_charge_phone:'',
+            exam_list:[],
+            exam_info_list:[],
+        }
+      },
+         methods: {
+          handleUpload(file){
+            this.file = file;
+                return false;
+
+          },
+          handlePage(pageIndex){
+              alert(pageIndex)
+          },
+          get_exam_info_list(id){
+              this.$http.get(site_url+'api/dev2/exam_info_list/?id='+id).then((res) => {
+                 console.log(res)
+                this.exam_info_list = res.data.list_data
+                this.chartData = res.data.chartData
+            })
+          },
+          upload_student(){
+               var formData = new window.FormData();
+                formData.append('id', this.id);
+                formData.append('exam_info', document.querySelector("#demo").files[0]);
+                this.$http.post(site_url+'api/dev2/upload_student/',formData).then((res) => {
+                    alert('导入成功！')
+                    this.get_exam_info_list(this.id);
+                })
+          },
+          download(){
+              window.location.href = site_url+'api/dev2/download/?id='+this.id
+          },
+          exam_info(row){
+              this.id=row.id;
+              this.bk_biz_name=row.bk_biz_name;
+              this.exam_name=row.exam_name;
+              this.exam_type=row.exam_type;
+              this.exam_addr=row.exam_addr;
+              this.date=row.exam_date;
+              this.exam_charge=row.exam_charge;
+              this.exam_charge_phone=row.exam_charge_phone;
+              this.exam_info_windows = true;
+              this.get_exam_info_list(row.id)
+          },
+          get_all_users(){
+              this.$http.get(site_url+'api/dev2/get_all_users/').then((res) => {
+                this.exam_charge_list = res.data.message
+            })
+          },
+          open_create_exam_window(){
+              this.create_exam_windows = true
+          },
+          delete_exam(row){
+              var flag = confirm('确定要删除吗？')
+              if(flag){
+                  this.$http.get(site_url+'api/dev2/delete_exam/?id='+row.id).then((res) => {
+                alert('删除成功');
+                      this.search_exam();
+            })
+              }
+          },
+             update_work_order(row){
+                 console.log(row)
+                 this.order_info = true;
+                 var ip = ''+ row.host_list;
+                 var biz_id = parseInt(row.bk_biz_id)
+                 this.ips = ip.split(',');
+                 this.titel_name = row.titel;
+                 this.approver = row.approver;
+                 this.proposer = row.proposer
+                 this.bk_biz_id = biz_id;
+                 this.content = row.content;
+                 this.id = row.id;
+                 this.create_time = row.date
+                 this.update_time = row.date
+                 this.suggest = row.suggest
+          },
+          search_host(){
+              this.ip_list = []
+              this.$http.get(site_url+'api/homework_2/search_host/?bk_biz_id='+this.bk_biz_id).then((res) => {
+                this.ip_list = res.data.message
+            })
+          },
+          search_business(){
+              this.$http.get(site_url+'api/search_business/').then((res) => {
+                  console.log(res.data.data.info)
+                this.biz_list = res.data.data.info
+            })
+          },
+          search_exam(){
+              this.$http.get(site_url+'api/dev2/search_exam/?exam_name='+this.exam_name+'&exam_addr='+this.exam_addr+'&exam_type='+this.exam_type+'&exam_charge='+this.exam_charge).then((res) => {
+                this.exam_list = res.data.message
+            })
+          },
+          reset(){
+              this.bk_biz_id='';
+              this.exam_name='';
+              this.exam_type='';
+              this.exam_addr='';
+              this.exam_date='';
+              this.exam_charge='';
+              this.exam_charge_phone='';
+          },
+          add_model(){
+          },
+          save_exam(){
+              if(this.exam_date){
+                  var date = this.exam_date.getTime()
+              }
+              var formData = new window.FormData();
+                formData.append('bk_biz_id', this.bk_biz_id);
+                formData.append('exam_name', this.exam_name);
+                formData.append('exam_type', this.exam_type);
+                formData.append('exam_addr', this.exam_addr);
+                formData.append('exam_date', date);
+                formData.append('exam_charge', this.exam_charge);
+                formData.append('exam_charge_phone', this.exam_charge_phone);
+                formData.append('exam_topic', this.file);
+                var config = {"headers":{"Content-typ":"multipart/form-data"}};
+                this.$http.post(site_url+'api/dev2/save/',formData, config).then((res) => {
+                    alert('保存成功！')
+                    this.create_exam_windows = false;
+                    this.reset();
+                    this.search_exam();
+                })
+          },
+          cancel(){
+              this.create_exam_windows = false;
+              this.reset()
+              this.search_exam();
+          },
+         },
+         created(){
+             this.search_business();
+         },
+         watch: {
+             bk_biz_id(){
+             }
+         }
+    })
+</script>
+<style>
+    .charts-wrapper{
+
+    }
+    .charts-wrapper{
+        width: 50%;
+        float:left;
+        border:1px solid #ddd;
+    }
+</style>
+
+

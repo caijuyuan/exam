@@ -8,6 +8,11 @@ class CollectionsCC(object):
     def __init__(self, client):
         self.client = client
 
+        self.add_host_lock = ComponentAPI(
+            client=self.client, method='POST',
+            path='/api/c/compapi{bk_api_ver}/cc/add_host_lock/',
+            description=u'新加主机锁'
+        )
         self.add_host_to_resource = ComponentAPI(
             client=self.client, method='POST',
             path='/api/c/compapi{bk_api_ver}/cc/add_host_to_resource/',
@@ -98,6 +103,11 @@ class CollectionsCC(object):
             path='/api/c/compapi{bk_api_ver}/cc/delete_host/',
             description=u'删除主机'
         )
+        self.delete_host_lock = ComponentAPI(
+            client=self.client, method='POST',
+            path='/api/c/compapi{bk_api_ver}/cc/delete_host_lock/',
+            description=u'删除主机锁'
+        )
         self.delete_inst = ComponentAPI(
             client=self.client, method='POST',
             path='/api/c/compapi{bk_api_ver}/cc/delete_inst/',
@@ -128,6 +138,11 @@ class CollectionsCC(object):
             path='/api/c/compapi{bk_api_ver}/cc/delete_user_group/',
             description=u'删除用户分组'
         )
+        self.get_biz_internal_module = ComponentAPI(
+            client=self.client, method='GET',
+            path='/api/c/compapi{bk_api_ver}/cc/get_biz_internal_module/',
+            description=u'查询业务的空闲机和故障机模块'
+        )
         self.get_custom_query_data = ComponentAPI(
             client=self.client, method='GET',
             path='/api/c/compapi{bk_api_ver}/cc/get_custom_query_data/',
@@ -142,6 +157,11 @@ class CollectionsCC(object):
             client=self.client, method='GET',
             path='/api/c/compapi{bk_api_ver}/cc/get_host_base_info/',
             description=u'获取主机详情'
+        )
+        self.get_mainline_object_topo = ComponentAPI(
+            client=self.client, method='GET',
+            path='/api/c/compapi{bk_api_ver}/cc/get_mainline_object_topo/',
+            description=u'查询主线模型的业务拓扑'
         )
         self.get_operation_log = ComponentAPI(
             client=self.client, method='POST',
@@ -187,6 +207,11 @@ class CollectionsCC(object):
             client=self.client, method='POST',
             path='/api/c/compapi{bk_api_ver}/cc/search_host/',
             description=u'根据条件查询主机'
+        )
+        self.search_host_lock = ComponentAPI(
+            client=self.client, method='POST',
+            path='/api/c/compapi{bk_api_ver}/cc/search_host_lock/',
+            description=u'查询主机锁'
         )
         self.search_inst = ComponentAPI(
             client=self.client, method='POST',

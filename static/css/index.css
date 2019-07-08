@@ -108,8 +108,7 @@ img {
 .home-page{
     min-height: calc(100% - 149px);
     position: relative;
-    background: #fff;
-    padding: 10px;
+    background: #1d91ec;
 }
 
 /*dev-guide.html*/
