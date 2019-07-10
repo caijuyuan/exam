@@ -5,20 +5,20 @@
     <div class="home-page" id="app">
         <div class="wrapper">
             <div>
-                这是一个测试aadsfasdf
+                这是一个测试
             </div>
 
                 <div class="charts-wrapper">
-                    <ve-line :data="lineData" width="800px"></ve-line>
+                    <ve-line :data="lineData" width="600px"></ve-line>
                 </div>
                 <div class="charts-wrapper">
-                    <ve-histogram :data="chartData" width="800px"></ve-histogram>
+                    <ve-histogram :data="chartData" width="600px"></ve-histogram>
                 </div>
                 <div class="charts-wrapper">
-                    <ve-pie :data="chartData" width="800px"></ve-pie>
+                    <ve-pie :data="chartData" width="600px"></ve-pie>
                 </div>
                 <div class="charts-wrapper">
-                    <ve-histogram :data="lineData" :settings="chartSettings"  width="800px"></ve-histogram>
+                    <ve-histogram :data="lineData" :settings="chartSettings"  width="600px"></ve-histogram>
                 </div>
 
 
@@ -26,8 +26,6 @@
     </div>
 </%block>
 <script>
-        Vue.prototype.$http=axios;
-    Vue.use(iview);
      new Vue({
       el: '#app',
       data: function () {
